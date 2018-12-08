@@ -11,9 +11,8 @@ s:
   links:
   - m:mysql
 m:
-  image: bitnami/mysql:5.7
+  image: mysql:5.7
   volumes:
-  - ./data/mysql:/bitnami/mysql/data
+  - ./data/mysql:/var/lib/mysql
   environment:
-  - MYSQL_DATABASE=openmdmserver
-  - ALLOW_EMPTY_PASSWORD=yes
+  - MYSQL_ALLOW_EMPTY_PASSWORD=TRUE

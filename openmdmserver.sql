@@ -1,4 +1,3 @@
-
 CREATE TABLE IF NOT EXISTS `admin` (
   `id` varchar(255) COLLATE utf8_bin NOT NULL,
   `account` varchar(50) COLLATE utf8_bin DEFAULT NULL,

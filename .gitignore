@@ -6,3 +6,4 @@
 /WebRoot/WEB-INF/classes
 .project
 /*.iml
+/src/main/webapp/mdmtool/down/*
