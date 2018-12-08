@@ -1,0 +1,19 @@
+s:
+  image: tomcat:7-jre7
+  volumes:
+  - ./data/tomcat_logs:/usr/local/tomcat/logs
+  - ./target/mdm-1.0-SNAPSHOT:/usr/local/tomcat/webapps/ROOT
+  ports:
+  - 8088:8080
+  environment:
+  - VIRTUAL_HOST=mdm.sklxsj.com
+  - VIRTUAL_PORT=8080
+  links:
+  - m:mysql
+m:
+  image: bitnami/mysql:5.7
+  volumes:
+  - ./data/mysql:/bitnami/mysql/data
+  environment:
+  - MYSQL_DATABASE=openmdmserver
+  - ALLOW_EMPTY_PASSWORD=yes
