@@ -1,33 +1,26 @@
 package com.jiangge.controller;
 
-import java.io.File;
-import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
-
 import com.jiangge.pojo.Admin;
-import com.jiangge.pojo.DeviceTemp;
 import com.jiangge.pojo.User;
-import com.jiangge.service.AdminService;
-import com.jiangge.service.CommandService;
-import com.jiangge.service.DeviceService;
-import com.jiangge.service.DeviceTempService;
-import com.jiangge.service.UserService;
+import com.jiangge.service.*;
 import com.jiangge.utils.ConfigUtils;
 import com.jiangge.utils.EmailUtil;
 import com.jiangge.utils.MDMTaskUtils;
 import com.jiangge.utils.StringUtil;
 import com.jiangge.vo.AdminVO;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @SuppressWarnings("all")
 @Controller

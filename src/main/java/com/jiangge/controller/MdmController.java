@@ -1,30 +1,20 @@
 package com.jiangge.controller;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.sql.Timestamp;
-import java.util.Map;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.jiangge.pojo.*;
+import com.jiangge.service.*;
+import com.jiangge.utils.MDMTaskUtils;
+import com.jiangge.utils.MdmUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.jiangge.pojo.Apps;
-import com.jiangge.pojo.Command;
-import com.jiangge.pojo.Device;
-import com.jiangge.pojo.DeviceTemp;
-import com.jiangge.pojo.Profile;
-import com.jiangge.service.AppsService;
-import com.jiangge.service.CommandService;
-import com.jiangge.service.DeviceService;
-import com.jiangge.service.DeviceTempService;
-import com.jiangge.service.ProfileService;
-import com.jiangge.utils.MDMTaskUtils;
-import com.jiangge.utils.MdmUtils;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Timestamp;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/mdm")

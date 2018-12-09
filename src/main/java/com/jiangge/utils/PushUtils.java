@@ -1,9 +1,5 @@
 package com.jiangge.utils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-
 import com.jiangge.apns4j.IApnsService;
 import com.jiangge.apns4j.impl.ApnsServiceImpl;
 import com.jiangge.apns4j.model.ApnsConfig;
@@ -11,6 +7,10 @@ import com.jiangge.apns4j.model.Payload;
 import com.jiangge.pojo.Device;
 import com.notnoop.apns.APNS;
 import com.notnoop.apns.ApnsService;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 /**
  * Java向Apple服务器PUSH消息

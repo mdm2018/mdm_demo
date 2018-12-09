@@ -14,5 +14,6 @@ m:
   image: mysql:5.7
   volumes:
   - ./data/mysql:/var/lib/mysql
+  - ./server.cnf:/etc/mysql/conf.d/server.cnf
   environment:
   - MYSQL_ALLOW_EMPTY_PASSWORD=TRUE

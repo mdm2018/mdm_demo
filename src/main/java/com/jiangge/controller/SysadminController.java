@@ -1,40 +1,22 @@
 package com.jiangge.controller;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.jiangge.pojo.*;
+import com.jiangge.service.*;
+import com.jiangge.utils.StringUtil;
+import com.jiangge.utils.StringUtils;
+import com.jiangge.vo.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.jiangge.pojo.Admin;
-import com.jiangge.pojo.Apps;
-import com.jiangge.pojo.Command;
-import com.jiangge.pojo.Device;
-import com.jiangge.pojo.Profile;
-import com.jiangge.pojo.User;
-import com.jiangge.service.AdminService;
-import com.jiangge.service.AppsService;
-import com.jiangge.service.CommandService;
-import com.jiangge.service.DeviceService;
-import com.jiangge.service.ProfileService;
-import com.jiangge.service.UserService;
-import com.jiangge.utils.StringUtil;
-import com.jiangge.utils.StringUtils;
-import com.jiangge.vo.AdminVO;
-import com.jiangge.vo.CommandTypeEnum;
-import com.jiangge.vo.CommandVO;
-import com.jiangge.vo.DeviceStateEnum;
-import com.jiangge.vo.DoTypeEnum;
-import com.jiangge.vo.InstallTypeEnum;
-import com.jiangge.vo.PageBean;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/sysadmin")
