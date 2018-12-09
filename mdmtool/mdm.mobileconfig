@@ -161,7 +161,7 @@
 			<key>Topic</key>
 			<string>#TOPIC#</string>
 			<key>UseDevelopmentAPNS</key>
-			<true/>
+			<false/>
 		</dict>
 	</array>
 	<key>PayloadDescription</key>

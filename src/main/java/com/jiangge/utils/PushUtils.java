@@ -101,10 +101,10 @@ public class PushUtils {
 
     public static void main(String[] as) throws InterruptedException {
         Device mdm = new Device();
-//        mdm.setPushMagic("26A1FD5C-2D78-45E6-B864-19327BD1C0AD");
-//        mdm.setToken("67c7882a1a95db2931ba35ae45428013bace921605c5bc7e8f3a07c7eb243402");
-        mdm.setPushMagic("6F6E0EB6-62D0-461B-811D-D8B14D337CE9");
-        mdm.setToken("e828c270f48e62bb791271f18685133653aaba8e64320eef976e983c3b6fb8c");
+//      mdm.setPushMagic("26A1FD5C-2D78-45E6-B864-19327BD1C0AD");
+//      mdm.setToken("67c7882a1a95db2931ba35ae45428013bace921605c5bc7e8f3a07c7eb243402");
+        mdm.setPushMagic("6UseDevelopmentAPNSF6E0EB6-62D0-461B-811D-D8B14D337CE9");
+        mdm.setToken("e828c270f48e62bb791271f186851303653aaba8e64320eef976e983c3b6fb8c");
         String p12Path = "mdmtool/MDMPush.p12";
         PushUtils.singleMDMPush(p12Path, mdm);
         Thread.sleep(10000);
