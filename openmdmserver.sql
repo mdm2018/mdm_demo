@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `admin` (
+CREATE TABLE IF NOT EXISTS `Admin` (
   `id` varchar(255) COLLATE utf8_bin NOT NULL,
   `account` varchar(50) COLLATE utf8_bin DEFAULT NULL,
   `password` varchar(50) COLLATE utf8_bin DEFAULT NULL,
@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS `admin` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
-CREATE TABLE IF NOT EXISTS `apps` (
+CREATE TABLE IF NOT EXISTS `Apps` (
   `id` varchar(255) COLLATE utf8_bin NOT NULL,
   `appName` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `bundleSize` varchar(255) COLLATE utf8_bin DEFAULT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `apps` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
-CREATE TABLE IF NOT EXISTS `command` (
+CREATE TABLE IF NOT EXISTS `Command` (
   `id` varchar(255) COLLATE utf8_bin NOT NULL,
   `callBack` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `command` varchar(255) COLLATE utf8_bin DEFAULT NULL,
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `command` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
-CREATE TABLE IF NOT EXISTS `device` (
+CREATE TABLE IF NOT EXISTS `Device` (
   `id` varchar(255) COLLATE utf8_bin NOT NULL,
   `availableDeviceCapacity` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `batteryLevel` varchar(255) COLLATE utf8_bin DEFAULT NULL,
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS `device` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
-CREATE TABLE IF NOT EXISTS `devicetemp` (
+CREATE TABLE IF NOT EXISTS `DeviceTemp` (
   `id` varchar(255) COLLATE utf8_bin NOT NULL,
   `callBack` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `deviceFlag` varchar(255) COLLATE utf8_bin DEFAULT NULL,
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS `devicetemp` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
-CREATE TABLE IF NOT EXISTS `profile` (
+CREATE TABLE IF NOT EXISTS `Profile` (
   `id` varchar(255) COLLATE utf8_bin NOT NULL,
   `createTime` datetime DEFAULT NULL,
   `ctype` varchar(255) COLLATE utf8_bin DEFAULT NULL,
@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS `profile` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-CREATE TABLE IF NOT EXISTS `user` (
+CREATE TABLE IF NOT EXISTS `User` (
   `id` varchar(255) COLLATE utf8_bin NOT NULL,
   `email` varchar(100) COLLATE utf8_bin DEFAULT NULL,
   `password` varchar(100) COLLATE utf8_bin DEFAULT NULL,
@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-INSERT INTO openmdmserver.user (id, email, password, remark)
+INSERT INTO openmdmserver.User (id, email, password, remark)
 VALUES ('1', 'kitsudo163@163.com', '5E04B15055607EE7069AD3A976C885E6', '')
 ON DUPLICATE KEY UPDATE email='kitsudo163@163.com',password='5E04B15055607EE7069AD3A976C885E6',remark='';
 

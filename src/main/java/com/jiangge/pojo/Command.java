@@ -10,40 +10,56 @@ import javax.persistence.Table;
 
 @Entity()
 @Table(name = "command")
-public class Command implements Serializable{
+public class Command implements Serializable {
 
     private static final long serialVersionUID = -7048625537017892345L;
-    
+
     @Id
     private String id;
-    /**设备编号（和Device主键对应）**/
-    private String deviceId;  
-    /**发送的命令**/
-    private  String command;   
-    /**是否执行（3：失败，2：已成功,1：已执行，0：未执行）**/
-    private  String doIt;         
-    /**注册时间**/
+    /**
+     * 设备编号（和Device主键对应）
+     **/
+    private String deviceId;
+    /**
+     * 发送的命令
+     **/
+    private String command;
+    /**
+     * 是否执行（3：失败，2：已成功,1：已执行，0：未执行）
+     **/
+    private String doIt;
+    /**
+     * 注册时间
+     **/
     private Timestamp createTime = new Timestamp(System.currentTimeMillis());
-    /**命令类型**/
-    private  String ctype; 
-    /**类型值**/
-    private  String cvalue; 
-    /**执行结果**/
+    /**
+     * 命令类型
+     **/
+    private String ctype;
+    /**
+     * 类型值
+     **/
+    private String cvalue;
+    /**
+     * 执行结果
+     **/
     @Column(length = 65535)
-    private  String result;   
-    /**回调地址**/
-    private  String callBack;
-    
+    private String result;
+    /**
+     * 回调地址
+     **/
+    private String callBack;
+
 
     public String getCtype() {
-		return ctype;
-	}
+        return ctype;
+    }
 
-	public void setCtype(String ctype) {
-		this.ctype = ctype;
-	}
+    public void setCtype(String ctype) {
+        this.ctype = ctype;
+    }
 
-	public String getId() {
+    public String getId() {
         return id;
     }
 
@@ -91,20 +107,20 @@ public class Command implements Serializable{
         this.doIt = doIt;
     }
 
-	public String getCvalue() {
-		return cvalue;
-	}
+    public String getCvalue() {
+        return cvalue;
+    }
 
-	public void setCvalue(String cvalue) {
-		this.cvalue = cvalue;
-	}
+    public void setCvalue(String cvalue) {
+        this.cvalue = cvalue;
+    }
 
-	public String getCallBack() {
-		return callBack;
-	}
+    public String getCallBack() {
+        return callBack;
+    }
 
-	public void setCallBack(String callBack) {
-		this.callBack = callBack;
-	}
-    
+    public void setCallBack(String callBack) {
+        this.callBack = callBack;
+    }
+
 }
