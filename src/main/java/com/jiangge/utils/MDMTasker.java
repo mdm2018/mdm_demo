@@ -21,6 +21,9 @@ public class MDMTasker {
             String oldPath = tempPath + "/" + deviceId + ".mobileconfig";
             String newPath = tempPath + "/" + deviceId + "Signed.mobileconfig";
             String content = MdmUtils.readConfig(configPath).replaceAll("#deviceId#", deviceId);
+            for (Map.Entry entry : taskParam.entrySet()) {
+                content = content.replaceAll("#" + entry.getKey().toString() + "#", entry.getValue().toString());
+            }
             boolean createSuccess = MdmUtils.createMobileConfigFile(oldPath, content);
             System.out.println("----------------------生成未签名的mobileconfig文件 end---------------------");
             /**签名和认证过程**/

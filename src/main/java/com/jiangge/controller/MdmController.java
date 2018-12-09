@@ -29,48 +29,51 @@ import com.jiangge.utils.MdmUtils;
 @Controller
 @RequestMapping("/mdm")
 public class MdmController {
-	
-	private DeviceService deviceService;
-	private CommandService commandService;
-	private AppsService appsService;
-	private ProfileService profileService;
-	private DeviceTempService deviceTempService;
-	
-	/**
+
+    private DeviceService deviceService;
+    private CommandService commandService;
+    private AppsService appsService;
+    private ProfileService profileService;
+    private DeviceTempService deviceTempService;
+
+    /**
      * 设备认证和注册功能
+     *
      * @throws Exception
      */
-	@RequestMapping(value="/checkin",method=RequestMethod.PUT)
-    public void checkIn(HttpServletRequest request,HttpServletResponse response) throws Exception {
-		String deviceId = request.getParameter("deviceId")==null?"":request.getParameter("deviceId");
+    @RequestMapping(value = "/checkin", method = RequestMethod.PUT)
+    public void checkIn(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String deviceId = request.getParameter("deviceId") == null ? "" : request.getParameter("deviceId");
         /**获取当期设备的编号和设备信息**/
         Device device = deviceService.getDeviceByHql("from Device where deviceId = ? ", deviceId);
         String info = MdmUtils.inputStream2String(request.getInputStream());
         /**Device认证方法调用、Device回传Token方法调用**/
         if (info.toString().contains(MdmUtils.Authenticate)) {
             System.out.println("-------------------Authenticate start---------------");
-            System.out.println("Device->Server Authenticate:\n"+info.toString());
+            System.out.println("Device->Server Authenticate:\n" + info.toString());
             /**保存返回的Token、PushMagic数据**/
             Map<String, String> plistMap = MdmUtils.parseAuthenticate(info.toString());
             String Topic = plistMap.get(MdmUtils.Topic);
             String UDID = plistMap.get(MdmUtils.UDID);
             device = deviceService.getDeviceByHql("from Device where udid = ? ", UDID);
-            if (device == null) { device = new Device();}
+            if (device == null) {
+                device = new Device();
+            }
             device.setDeviceId(deviceId);
             device.setUdid(UDID);
             device.setTopic(Topic);
             device.setControl("1");
             /**查询初始数据**/
             DeviceTemp deviceTemp = deviceTempService.getDeviceTempByHql("from DeviceTemp where deviceId = ?", deviceId);
-            if(null != deviceTemp){
-            	device.setDeviceFlag(deviceTemp.getDeviceFlag());
-            	/**异步通知第三方更新**/
-            	MDMTaskUtils.sendCallBack(deviceTemp.getCallBack(), deviceId, "1");
+            if (null != deviceTemp) {
+                device.setDeviceFlag(deviceTemp.getDeviceFlag());
+                /**异步通知第三方更新**/
+                MDMTaskUtils.sendCallBack(deviceTemp.getCallBack(), deviceId, "1");
             }
             deviceService.saveOrUpdate(device);
             /**返回一个空的pList格式的文件**/
             String blankPList = MdmUtils.getBlankPList();
-            System.out.println("Server->Device:\n"+blankPList);
+            System.out.println("Server->Device:\n" + blankPList);
             response.setHeader("content-type", "application/xml;charset=UTF-8");
             response.setCharacterEncoding("UTF-8");
             String configTitle = "MDMApp_EraseDevice";
@@ -82,7 +85,7 @@ public class MdmController {
             sos.close();
         } else if (info.toString().contains(MdmUtils.TokenUpdate)) {
             System.out.println("-------------------TokenUpdate start---------------");
-            System.out.println("Device->Server TokenUpdate:\n"+info.toString());
+            System.out.println("Device->Server TokenUpdate:\n" + info.toString());
             /**保存返回的数据**/
             Map<String, String> plistMap = MdmUtils.parseTokenUpdate(info.toString());
             String UnlockToken = MdmUtils.parseUnlockToken(info.toString());
@@ -91,7 +94,9 @@ public class MdmController {
             String OriToken = plistMap.get(MdmUtils.Token);
             String PushMagic = plistMap.get(MdmUtils.PushMagic);
             device = deviceService.getDeviceByHql("from Device where udid = ? ", UDID);
-            if (device == null) { device = new Device(); }
+            if (device == null) {
+                device = new Device();
+            }
             device.setDeviceId(deviceId);
             device.setUdid(UDID);
             device.setTopic(Topic);
@@ -103,10 +108,10 @@ public class MdmController {
             device.setPushMagic(PushMagic);
             /**查询初始数据**/
             DeviceTemp deviceTemp = deviceTempService.getDeviceTempByHql("from DeviceTemp where deviceId = ?", deviceId);
-            if(null != deviceTemp){
-            	device.setDeviceFlag(deviceTemp.getDeviceFlag());
-            	/**异步通知第三方更新**/
-            	MDMTaskUtils.sendCallBack(deviceTemp.getCallBack(), deviceId, "2");
+            if (null != deviceTemp) {
+                device.setDeviceFlag(deviceTemp.getDeviceFlag());
+                /**异步通知第三方更新**/
+                MDMTaskUtils.sendCallBack(deviceTemp.getCallBack(), deviceId, "2");
             }
             deviceService.saveOrUpdate(device);
             /**异步加设备信息**/
@@ -125,15 +130,15 @@ public class MdmController {
                 e.printStackTrace();
             }
         } else if (info.toString().contains(MdmUtils.CheckOut)) {
-            System.out.println("Device->Server CheckOut:\n"+info.toString());
+            System.out.println("Device->Server CheckOut:\n" + info.toString());
             System.out.println("-------------------CheckOut start---------------");
             if (device != null) {
-            	device.setControl("-1");
-            	/**查询初始数据**/
+                device.setControl("-1");
+                /**查询初始数据**/
                 DeviceTemp deviceTemp = deviceTempService.getDeviceTempByHql("from DeviceTemp where deviceId = ?", deviceId);
-                if(null != deviceTemp){
-                	/**异步通知第三方更新**/
-                	MDMTaskUtils.sendCallBack(deviceTemp.getCallBack(), deviceId, "-1");
+                if (null != deviceTemp) {
+                    /**异步通知第三方更新**/
+                    MDMTaskUtils.sendCallBack(deviceTemp.getCallBack(), deviceId, "-1");
                 }
                 deviceService.saveOrUpdate(device);
             }
@@ -145,19 +150,20 @@ public class MdmController {
 
     /**
      * 操作状态回执
+     *
      * @throws Exception
      */
-    @RequestMapping(value="/server",method=RequestMethod.PUT)
-    public void serverUrl(HttpServletRequest request,HttpServletResponse response) throws Exception {
-    	String deviceId = request.getParameter("deviceId")==null?"":request.getParameter("deviceId");
-    	System.out.println("deviceId:"+deviceId);
+    @RequestMapping(value = "/server", method = RequestMethod.PUT)
+    public void serverUrl(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String deviceId = request.getParameter("deviceId") == null ? "" : request.getParameter("deviceId");
+        System.out.println("deviceId:" + deviceId);
         /**获取当期设备的编号**/
         Device device = deviceService.getDeviceByHql("from Device where deviceId = ? ", deviceId);
         String info = MdmUtils.inputStream2String(request.getInputStream());
         /**设备空闲状态,可以发送相关命令**/
         if (info.contains(MdmUtils.Idle)) {
             /**执行命令**/
-            Command command = (Command)commandService.getCommandByHql("from Command where deviceId=? and doIt=? order by createTime asc", deviceId, "0");
+            Command command = (Command) commandService.getCommandByHql("from Command where deviceId=? and doIt=? order by createTime asc", deviceId, "0");
             if (command != null) {
                 if (command.getCommand().equals(MdmUtils.Lock)) {
                     System.out.println("-------------------DeviceLock Start---------------");
@@ -166,8 +172,8 @@ public class MdmController {
                     command.setDoIt("1");
                     commandService.saveOrUpdate(command);
                     /**异步通知第三方更新**/
-                	MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "1", command.getId());
-                    System.out.println("Server->Device Lock:\n"+commandString);
+                    MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "1", command.getId());
+                    System.out.println("Server->Device Lock:\n" + commandString);
                     response.setHeader("content-type", "application/xml;charset=UTF-8");
                     response.setCharacterEncoding("UTF-8");
                     String configTitle = "MDMApp_DeviceLock";
@@ -181,11 +187,11 @@ public class MdmController {
                     System.out.println("-------------------EraseDevice Start---------------");
                     /**发送清除谁命令**/
                     String commandString = MdmUtils.getCommandPList(MdmUtils.Erase, command.getId());
-                    System.out.println("Server->Device Erase:\n"+commandString);
+                    System.out.println("Server->Device Erase:\n" + commandString);
                     command.setDoIt("1");
                     commandService.saveOrUpdate(command);
                     /**异步通知第三方更新**/
-                	MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "1", command.getId());
+                    MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "1", command.getId());
                     response.setHeader("content-type", "application/xml;charset=UTF-8");
                     response.setCharacterEncoding("UTF-8");
                     String configTitle = "MDMApp_EraseDevice";
@@ -199,11 +205,11 @@ public class MdmController {
                     System.out.println("-------------------DeviceInformation Start---------------");
                     /**发送获取设备信息命令**/
                     String commandString = MdmUtils.getCommandInfoPList(MdmUtils.Info, command.getId());
-                    System.out.println("Server->Device DeviceInformation:\n"+commandString);
+                    System.out.println("Server->Device DeviceInformation:\n" + commandString);
                     command.setDoIt("1");
                     commandService.saveOrUpdate(command);
                     /**异步通知第三方更新**/
-                	MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "1", command.getId());
+                    MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "1", command.getId());
                     response.setHeader("content-type", "application/xml;charset=UTF-8");
                     response.setCharacterEncoding("UTF-8");
                     String configTitle = "MDMApp_DeviceInformation";
@@ -217,16 +223,16 @@ public class MdmController {
                     System.out.println("-------------------InstalledApplicationList Start---------------");
                     /**发送获取设备信息命令**/
                     String commandString = "";
-                    if(command.getCtype().equals("ManagedAppsOnly")){
-                    	commandString = MdmUtils.getAppsCommandPList(MdmUtils.Apps, command.getId());
-                    }else{
-                    	commandString = MdmUtils.getCommandPList(MdmUtils.Apps, command.getId());
+                    if (command.getCtype().equals("ManagedAppsOnly")) {
+                        commandString = MdmUtils.getAppsCommandPList(MdmUtils.Apps, command.getId());
+                    } else {
+                        commandString = MdmUtils.getCommandPList(MdmUtils.Apps, command.getId());
                     }
-                    System.out.println("Server->Device InstalledApplicationList:\n"+commandString);
+                    System.out.println("Server->Device InstalledApplicationList:\n" + commandString);
                     command.setDoIt("1");
                     commandService.saveOrUpdate(command);
                     /**异步通知第三方更新**/
-                	MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "1", command.getId());
+                    MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "1", command.getId());
                     response.setHeader("content-type", "application/xml;charset=UTF-8");
                     response.setCharacterEncoding("UTF-8");
                     String configTitle = "MDMApp_InstalledApplicationList";
@@ -239,12 +245,12 @@ public class MdmController {
                 } else if (command.getCommand().equals(MdmUtils.Clear)) {
                     System.out.println("-------------------ClearPasscode Start---------------");
                     /**发送清除设备密码命令**/
-                    String commandString = MdmUtils.getClearPassCodePList(MdmUtils.Clear, command.getId(),device);
-                    System.out.println("Server->Device ClearPasscode:\n"+commandString);
+                    String commandString = MdmUtils.getClearPassCodePList(MdmUtils.Clear, command.getId(), device);
+                    System.out.println("Server->Device ClearPasscode:\n" + commandString);
                     command.setDoIt("1");
                     commandService.saveOrUpdate(command);
                     /**异步通知第三方更新**/
-                	MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "1", command.getId());
+                    MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "1", command.getId());
                     response.setHeader("content-type", "application/xml;charset=UTF-8");
                     response.setCharacterEncoding("UTF-8");
                     String configTitle = "MDMApp_ClearPasscode";
@@ -258,11 +264,11 @@ public class MdmController {
                     System.out.println("-------------------InstallApplication Start---------------");
                     /**发送安装APP命令**/
                     String commandString = MdmUtils.getInstallApplication(MdmUtils.Install, command.getId(), command.getCtype(), command.getCvalue());
-                    System.out.println("Server->Device InstallApplication:\n"+commandString);
+                    System.out.println("Server->Device InstallApplication:\n" + commandString);
                     command.setDoIt("1");
                     commandService.saveOrUpdate(command);
                     /**异步通知第三方更新**/
-                	MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "1", command.getId());
+                    MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "1", command.getId());
                     response.setHeader("content-type", "application/xml;charset=UTF-8");
                     response.setCharacterEncoding("UTF-8");
                     String configTitle = "MDMApp_InstallApplication";
@@ -276,11 +282,11 @@ public class MdmController {
                     System.out.println("-------------------RemoveApplication Start---------------");
                     /**发送卸载APP命令**/
                     String commandString = MdmUtils.getRemoveApplication(MdmUtils.Remove, command.getId(), command.getCvalue());
-                    System.out.println("Server->Device RemoveApplication:\n"+commandString);
+                    System.out.println("Server->Device RemoveApplication:\n" + commandString);
                     command.setDoIt("1");
                     commandService.saveOrUpdate(command);
                     /**异步通知第三方更新**/
-                	MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "1", command.getId());
+                    MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "1", command.getId());
                     response.setHeader("content-type", "application/xml;charset=UTF-8");
                     response.setCharacterEncoding("UTF-8");
                     String configTitle = "MDMApp_RemoveApplication";
@@ -290,15 +296,15 @@ public class MdmController {
                     sos.write(commandString);
                     sos.flush();
                     sos.close();
-                }else if (command.getCommand().equals(MdmUtils.ProfileList)) {
+                } else if (command.getCommand().equals(MdmUtils.ProfileList)) {
                     System.out.println("-------------------ProfileList Start---------------");
                     /**发送获取描述文件列表命令**/
                     String commandString = MdmUtils.getCommandPList(MdmUtils.ProfileList, command.getId());
-                    System.out.println("Server->Device ProfileList:\n"+commandString);
+                    System.out.println("Server->Device ProfileList:\n" + commandString);
                     command.setDoIt("1");
                     commandService.saveOrUpdate(command);
                     /**异步通知第三方更新**/
-                	MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "1", command.getId());
+                    MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "1", command.getId());
                     response.setHeader("content-type", "application/xml;charset=UTF-8");
                     response.setCharacterEncoding("UTF-8");
                     String configTitle = "MDMApp_ProfileList";
@@ -308,15 +314,15 @@ public class MdmController {
                     sos.write(commandString);
                     sos.flush();
                     sos.close();
-                }else if (command.getCommand().equals(MdmUtils.ProvisioningProfileList)) {
+                } else if (command.getCommand().equals(MdmUtils.ProvisioningProfileList)) {
                     System.out.println("-------------------ProvisioningProfileList Start---------------");
                     /**发送获取预置描述文件列表命令**/
                     String commandString = MdmUtils.getCommandPList(MdmUtils.ProvisioningProfileList, command.getId());
-                    System.out.println("Server->Device ProvisioningProfileList:\n"+commandString);
+                    System.out.println("Server->Device ProvisioningProfileList:\n" + commandString);
                     command.setDoIt("1");
                     commandService.saveOrUpdate(command);
                     /**异步通知第三方更新**/
-                	MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "1", command.getId());
+                    MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "1", command.getId());
                     response.setHeader("content-type", "application/xml;charset=UTF-8");
                     response.setCharacterEncoding("UTF-8");
                     String configTitle = "MDMApp_ProvisioningProfileList";
@@ -326,15 +332,15 @@ public class MdmController {
                     sos.write(commandString);
                     sos.flush();
                     sos.close();
-                }else if (command.getCommand().equals(MdmUtils.CertificateList)) {
+                } else if (command.getCommand().equals(MdmUtils.CertificateList)) {
                     System.out.println("-------------------CertificateList Start---------------");
                     /**发送获取证书文件命令**/
                     String commandString = MdmUtils.getCommandPList(MdmUtils.CertificateList, command.getId());
-                    System.out.println("Server->Device CertificateList:\n"+commandString);
+                    System.out.println("Server->Device CertificateList:\n" + commandString);
                     command.setDoIt("1");
                     commandService.saveOrUpdate(command);
                     /**异步通知第三方更新**/
-                	MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "1", command.getId());
+                    MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "1", command.getId());
                     response.setHeader("content-type", "application/xml;charset=UTF-8");
                     response.setCharacterEncoding("UTF-8");
                     String configTitle = "MDMApp_CertificateList";
@@ -349,17 +355,17 @@ public class MdmController {
         } else if (info.contains(MdmUtils.Acknowledged)) {
             if (info.contains(MdmUtils.QueryResponses)) {
                 System.out.println("-------------------DeviceInformation Start---------------");
-                System.out.println("Device->Server DeviceInformation:\n"+info.toString());
+                System.out.println("Device->Server DeviceInformation:\n" + info.toString());
                 Map<String, String> plistMap = MdmUtils.parseInformation(info);
                 String CommandUUID = plistMap.get("CommandUUID");
-                System.out.println("CommandUUID:"+CommandUUID);
+                System.out.println("CommandUUID:" + CommandUUID);
                 Command command = commandService.getCommandById(CommandUUID);
                 if (command != null) {
                     command.setResult(MdmUtils.Acknowledged);
                     command.setDoIt("2");
                     commandService.saveOrUpdate(command);
                     /**异步通知第三方更新**/
-                	MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "2", command.getId());
+                    MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "2", command.getId());
                 }
                 /**更新服务器设备状态**/
                 device.setModelName(plistMap.get("ModelName"));
@@ -382,24 +388,24 @@ public class MdmController {
                 device.setUpdateTime(new Timestamp(System.currentTimeMillis()));
                 deviceService.saveOrUpdate(device);
                 System.out.println("-------------------DeviceInformation End---------------");
-            }else if(info.contains(MdmUtils.InstalledApplicationList)) {
+            } else if (info.contains(MdmUtils.InstalledApplicationList)) {
                 System.out.println("-------------------InstalledApplicationList Start---------------");
-                System.out.println("Device->Server InstalledApplicationList:\n"+info.toString());
+                System.out.println("Device->Server InstalledApplicationList:\n" + info.toString());
                 Map<String, Map<String, String>> plistMap = MdmUtils.parseInstalledApplicationList(info);
                 String CommandUUID = plistMap.get(MdmUtils.InstalledApplicationList).get("CommandUUID");
-                System.out.println("CommandUUID:"+CommandUUID);
+                System.out.println("CommandUUID:" + CommandUUID);
                 Command command = commandService.getCommandById(CommandUUID);
-                if(command.getCtype().equals("ManagedAppsOnly")){
-                	Apps app = null;
+                if (command.getCtype().equals("ManagedAppsOnly")) {
+                    Apps app = null;
                     for (String key : plistMap.keySet()) {
-                        if(!MdmUtils.InstalledApplicationList.equals(key)){
-                            Map<String, String> map =  plistMap.get(key);
+                        if (!MdmUtils.InstalledApplicationList.equals(key)) {
+                            Map<String, String> map = plistMap.get(key);
                             app = appsService.getAppsByHql("from Apps where deviceId = ? and identifier = ?", deviceId, map.get("Identifier"));
-                            if(null != app){
-                            	app.setManagedAppsOnly("1");
+                            if (null != app) {
+                                app.setManagedAppsOnly("1");
                                 appsService.saveOrUpdtae(app);
-                            }else{
-                            	app = new Apps();
+                            } else {
+                                app = new Apps();
                                 app.setDeviceId(deviceId);
                                 app.setAppName(map.get("Name"));
                                 app.setBundleSize(map.get("BundleSize"));
@@ -412,14 +418,14 @@ public class MdmController {
                             }
                         }
                     }
-                }else{
-                	/**删除原有APP数据**/
+                } else {
+                    /**删除原有APP数据**/
                     appsService.deleteAppsByDeviceId(deviceId);
                     /**保存处理后的APP列表数据 start**/
                     Apps app = null;
                     for (String key : plistMap.keySet()) {
-                        if(!MdmUtils.InstalledApplicationList.equals(key)){
-                            Map<String, String> map =  plistMap.get(key);
+                        if (!MdmUtils.InstalledApplicationList.equals(key)) {
+                            Map<String, String> map = plistMap.get(key);
                             app = new Apps();
                             app.setDeviceId(deviceId);
                             app.setAppName(map.get("Name"));
@@ -439,196 +445,203 @@ public class MdmController {
                     command.setDoIt("2");
                     commandService.saveOrUpdate(command);
                     /**异步通知第三方更新**/
-                	MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "2", command.getId());
+                    MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "2", command.getId());
                 }
                 System.out.println("-------------------InstalledApplicationList End---------------");
-            } else if(info.contains(MdmUtils.ProvisioningProfileList)) {
+            } else if (info.contains(MdmUtils.ProvisioningProfileList)) {
                 System.out.println("-------------------ProvisioningProfileList Start---------------");
-                System.out.println("Device->Server ProvisioningProfileList:\n"+info.toString());
+                System.out.println("Device->Server ProvisioningProfileList:\n" + info.toString());
                 Map<String, String> plistMap = MdmUtils.parseProvisioningProfileList(info);
-                for(String key:plistMap.keySet()){
-                	System.out.println(key+":"+plistMap.get(key));
+                for (String key : plistMap.keySet()) {
+                    System.out.println(key + ":" + plistMap.get(key));
                 }
-            	String CommandUUID = plistMap.get("CommandUUID");
-            	profileService.deleteProfileByDeviceId(deviceId,MdmUtils.ProvisioningProfileList);
-            	Profile profile = new Profile();
-            	profile.setCtype(MdmUtils.ProvisioningProfileList);
-            	profile.setDeviceId(deviceId);
-            	profile.setResult(info.toString());
-            	profileService.saveOrUpdate(profile);
-            	System.out.println("CommandUUID:"+CommandUUID);
+                String CommandUUID = plistMap.get("CommandUUID");
+                profileService.deleteProfileByDeviceId(deviceId, MdmUtils.ProvisioningProfileList);
+                Profile profile = new Profile();
+                profile.setCtype(MdmUtils.ProvisioningProfileList);
+                profile.setDeviceId(deviceId);
+                profile.setResult(info.toString());
+                profileService.saveOrUpdate(profile);
+                System.out.println("CommandUUID:" + CommandUUID);
                 Command command = commandService.getCommandById(CommandUUID);
                 if (command != null) {
                     command.setResult(MdmUtils.ProvisioningProfileList);
                     command.setDoIt("2");
                     commandService.saveOrUpdate(command);
                     /**异步通知第三方更新**/
-                	MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "2", command.getId());
+                    MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "2", command.getId());
                 }
                 System.out.println("-------------------ProvisioningProfileList End---------------");
-            } else if(info.contains(MdmUtils.ProfileList)) {
+            } else if (info.contains(MdmUtils.ProfileList)) {
                 System.out.println("-------------------ProfileList Start---------------");
-                System.out.println("Device->Server ProfileList:\n"+info.toString());
+                System.out.println("Device->Server ProfileList:\n" + info.toString());
                 Map<String, String> plistMap = MdmUtils.parseProfileList(info);
-                for(String key:plistMap.keySet()){
-                	System.out.println(key+":"+plistMap.get(key));
+                for (String key : plistMap.keySet()) {
+                    System.out.println(key + ":" + plistMap.get(key));
                 }
-            	String CommandUUID = plistMap.get("CommandUUID");
-            	profileService.deleteProfileByDeviceId(deviceId,MdmUtils.ProfileList);
-            	Profile profile = new Profile();
-            	profile.setCtype(MdmUtils.ProfileList);
-            	profile.setDeviceId(deviceId);
-            	profile.setResult(info.toString());
-            	profileService.saveOrUpdate(profile);
-            	System.out.println("CommandUUID:"+CommandUUID);
+                String CommandUUID = plistMap.get("CommandUUID");
+                profileService.deleteProfileByDeviceId(deviceId, MdmUtils.ProfileList);
+                Profile profile = new Profile();
+                profile.setCtype(MdmUtils.ProfileList);
+                profile.setDeviceId(deviceId);
+                profile.setResult(info.toString());
+                profileService.saveOrUpdate(profile);
+                System.out.println("CommandUUID:" + CommandUUID);
                 Command command = commandService.getCommandById(CommandUUID);
                 if (command != null) {
                     command.setResult(MdmUtils.ProfileList);
                     command.setDoIt("2");
                     commandService.saveOrUpdate(command);
                     /**异步通知第三方更新**/
-                	MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "2", command.getId());
+                    MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "2", command.getId());
                 }
                 System.out.println("-------------------ProfileList End---------------");
-            } else if(info.contains(MdmUtils.CertificateList)) {
+            } else if (info.contains(MdmUtils.CertificateList)) {
                 System.out.println("-------------------CertificateList Start---------------");
-                System.out.println("Device->Server CertificateList:\n"+info.toString());
+                System.out.println("Device->Server CertificateList:\n" + info.toString());
                 Map<String, String> plistMap = MdmUtils.parseCertificateList(info);
-                for(String key:plistMap.keySet()){
-                	System.out.println(key+":"+plistMap.get(key));
+                for (String key : plistMap.keySet()) {
+                    System.out.println(key + ":" + plistMap.get(key));
                 }
-            	String CommandUUID = plistMap.get("CommandUUID");
-            	profileService.deleteProfileByDeviceId(deviceId,MdmUtils.CertificateList);
-            	Profile profile = new Profile();
-            	profile.setCtype(MdmUtils.CertificateList);
-            	profile.setDeviceId(deviceId);
-            	profile.setResult(info.toString());
-            	profileService.saveOrUpdate(profile);
-            	System.out.println("CommandUUID:"+CommandUUID);
+                String CommandUUID = plistMap.get("CommandUUID");
+                profileService.deleteProfileByDeviceId(deviceId, MdmUtils.CertificateList);
+                Profile profile = new Profile();
+                profile.setCtype(MdmUtils.CertificateList);
+                profile.setDeviceId(deviceId);
+                profile.setResult(info.toString());
+                profileService.saveOrUpdate(profile);
+                System.out.println("CommandUUID:" + CommandUUID);
                 Command command = commandService.getCommandById(CommandUUID);
                 if (command != null) {
                     command.setResult(MdmUtils.CertificateList);
                     command.setDoIt("2");
                     commandService.saveOrUpdate(command);
                     /**异步通知第三方更新**/
-                	MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "2", command.getId());
+                    MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "2", command.getId());
                 }
                 System.out.println("-------------------CertificateList End---------------");
             } else {
                 System.out.println("-------------------OtherResult Start---------------");
-                System.out.println("Device->Server Others:\n"+info.toString());
+                System.out.println("Device->Server Others:\n" + info.toString());
                 Map<String, String> plistMap = MdmUtils.parseCommand(info);
-                for(String key:plistMap.keySet()){
-                	System.out.println(key+":"+plistMap.get(key));
+                for (String key : plistMap.keySet()) {
+                    System.out.println(key + ":" + plistMap.get(key));
                 }
                 String CommandUUID = plistMap.get("CommandUUID");
-                System.out.println("CommandUUID:"+CommandUUID);
+                System.out.println("CommandUUID:" + CommandUUID);
                 Command command = commandService.getCommandById(CommandUUID);
                 if (command != null) {
                     command.setResult(MdmUtils.Acknowledged);
                     command.setDoIt("2");
                     /**将设备标记成已经移除**/
-                    String commandstr = command.getCommand()==null?"":command.getCommand();
-                    if(commandstr.equals(MdmUtils.Erase)){
-                    	device.setControl("-1");
-                    	deviceService.saveOrUpdate(device);
+                    String commandstr = command.getCommand() == null ? "" : command.getCommand();
+                    if (commandstr.equals(MdmUtils.Erase)) {
+                        device.setControl("-1");
+                        deviceService.saveOrUpdate(device);
                     }
                     commandService.saveOrUpdate(command);
                     /**异步通知第三方更新**/
-                	MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "2", command.getId());
+                    MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "2", command.getId());
                 }
                 System.out.println("-------------------OtherResult End---------------");
             }
         } else if (info.contains(MdmUtils.CommandFormatError)) {
             System.out.println("-------------------CommandFormatError Start---------------");
             Map<String, String> plistMap = MdmUtils.parseCommand(info);
-            for(String key:plistMap.keySet()){
-            	System.out.println(key+":"+plistMap.get(key));
+            for (String key : plistMap.keySet()) {
+                System.out.println(key + ":" + plistMap.get(key));
             }
             String CommandUUID = plistMap.get("CommandUUID");
-            System.out.println("CommandUUID:"+CommandUUID);
+            System.out.println("CommandUUID:" + CommandUUID);
             Command command = commandService.getCommandById(CommandUUID);
             if (command != null) {
                 command.setDoIt("3");
                 command.setResult(info);
                 commandService.saveOrUpdate(command);
                 /**异步通知第三方更新**/
-            	MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "3", command.getId());
+                MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "3", command.getId());
             }
             System.out.println("-------------------CommandFormatError End---------------");
         } else if (info.contains(MdmUtils.Error)) {
             System.out.println("-------------------Error Start---------------");
             Map<String, String> plistMap = MdmUtils.parseCommand(info);
-            for(String key:plistMap.keySet()){
-            	System.out.println(key+":"+plistMap.get(key));
+            for (String key : plistMap.keySet()) {
+                System.out.println(key + ":" + plistMap.get(key));
             }
             String CommandUUID = plistMap.get("CommandUUID");
-            System.out.println("CommandUUID:"+CommandUUID);
+            System.out.println("CommandUUID:" + CommandUUID);
             Command command = commandService.getCommandById(CommandUUID);
             if (command != null) {
                 command.setDoIt("3");
                 command.setResult(info);
                 commandService.saveOrUpdate(command);
                 /**异步通知第三方更新**/
-            	MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "3", command.getId());
+                MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "3", command.getId());
             }
             System.out.println("-------------------Error End---------------");
         } else if (info.contains(MdmUtils.NotNow)) {
             System.out.println("-------------------NotNow Start---------------");
             Map<String, String> plistMap = MdmUtils.parseCommand(info);
-            for(String key:plistMap.keySet()){
-            	System.out.println(key+":"+plistMap.get(key));
+            for (String key : plistMap.keySet()) {
+                System.out.println(key + ":" + plistMap.get(key));
             }
             String CommandUUID = plistMap.get("CommandUUID");
-            System.out.println("CommandUUID:"+CommandUUID);
+            System.out.println("CommandUUID:" + CommandUUID);
             Command command = commandService.getCommandById(CommandUUID);
             if (command != null) {
                 command.setResult("NotNow");
                 commandService.saveOrUpdate(command);
                 /**异步通知第三方更新**/
-            	MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "0", command.getId());
+                MDMTaskUtils.sendCommandCallBack(command.getCallBack(), "0", command.getId());
             }
             System.out.println("-------------------NotNow End---------------");
         }
     }
-	
-	/****************************************************************/
-    
-	public DeviceService getDeviceService() {
-		return deviceService;
-	}
-	@Resource
-	public void setDeviceService(DeviceService deviceService) {
-		this.deviceService = deviceService;
-	}
-	
-	public CommandService getCommandService() {
-		return commandService;
-	}
-	@Resource
-	public void setCommandService(CommandService commandService) {
-		this.commandService = commandService;
-	}
-	public AppsService getAppsService() {
-		return appsService;
-	}
-	@Resource
-	public void setAppsService(AppsService appsService) {
-		this.appsService = appsService;
-	}
-	
-	public ProfileService getProfileService() {
-		return profileService;
-	}
-	@Resource
-	public void setProfileService(ProfileService profileService) {
-		this.profileService = profileService;
-	}
-	public DeviceTempService getDeviceTempService() {
-		return deviceTempService;
-	}
-	@Resource
-	public void setDeviceTempService(DeviceTempService deviceTempService) {
-		this.deviceTempService = deviceTempService;
-	}
+
+    /****************************************************************/
+
+    public DeviceService getDeviceService() {
+        return deviceService;
+    }
+
+    @Resource
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
+    }
+
+    public CommandService getCommandService() {
+        return commandService;
+    }
+
+    @Resource
+    public void setCommandService(CommandService commandService) {
+        this.commandService = commandService;
+    }
+
+    public AppsService getAppsService() {
+        return appsService;
+    }
+
+    @Resource
+    public void setAppsService(AppsService appsService) {
+        this.appsService = appsService;
+    }
+
+    public ProfileService getProfileService() {
+        return profileService;
+    }
+
+    @Resource
+    public void setProfileService(ProfileService profileService) {
+        this.profileService = profileService;
+    }
+
+    public DeviceTempService getDeviceTempService() {
+        return deviceTempService;
+    }
+
+    @Resource
+    public void setDeviceTempService(DeviceTempService deviceTempService) {
+        this.deviceTempService = deviceTempService;
+    }
 }
